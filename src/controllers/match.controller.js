@@ -7,6 +7,8 @@ import {
   getAllMatches,
 } from "../services/match.service.js";
 
+import { uploadToCloudinary } from "../middlewares/upload.js";
+
 export async function createMatchController(req, res, next) {
   try {
     const { title, tournament, startTime } = req.body;
@@ -17,10 +19,18 @@ export async function createMatchController(req, res, next) {
         .json({ message: "Title and startTime are required" });
     }
 
+    let coverImage = null;
+
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file.buffer, "matches");
+      coverImage = uploadResult.secure_url;
+    }
+
     const match = await createMatch({
       title,
       tournament,
       startTime,
+      coverImage,
     });
 
     res.status(201).json(match);
@@ -28,6 +38,7 @@ export async function createMatchController(req, res, next) {
     next(err);
   }
 }
+
 
 export async function listadminMatchesController(req, res, next) {
   try {

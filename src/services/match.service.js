@@ -3,10 +3,9 @@ import mongoose from "mongoose";
 import { Response } from "../models/Response.js";
 
 export async function createMatch(data) {
+  
   return Match.create(data);
 }
-
-
 
 export async function getMatchesForUser(userId) {
   // 1️⃣ Get matchIds where user participated
@@ -14,8 +13,7 @@ export async function getMatchesForUser(userId) {
     userId: new mongoose.Types.ObjectId(userId),
   });
 
-  // 2️⃣ Build final filter
-  return Match.find({
+  let match = await Match.find({
     $or: [
       { status: { $in: ["UPCOMING", "LIVE"] } },
       {
@@ -23,8 +21,21 @@ export async function getMatchesForUser(userId) {
         _id: { $in: participatedMatches },
       },
     ],
-  }).sort({ startTime: -1 });
+  })
+    .select({
+      title: 1,
+      tournament: 1,
+      startTime: 1,
+      status: 1,
+      coverImage: 1, // ✅ IMPORTANT
+    })
+    .sort({ startTime: -1 });
+    
+
+  // 2️⃣ Fetch matches (explicitly include coverImage)
+  return match
 }
+
 
 export async function getAllMatches(filters = {}) {
   return Match.aggregate([

@@ -7,14 +7,23 @@ const matchSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     tournament: {
       type: String,
       trim: true,
     },
+
+    coverImage: {
+      type: String, // S3 / Cloudinary / CDN URL
+      trim: true,
+      default: null,
+    },
+
     startTime: {
       type: Date,
       required: true,
     },
+
     status: {
       type: String,
       enum: ["UPCOMING", "LIVE", "COMPLETED"],
