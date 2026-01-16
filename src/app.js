@@ -24,11 +24,33 @@ import newadminAnalyticsRoutes from "./routes/admin.analytics.routes.js"
 export function createApp() {
   const app = express();
 
-  app.use(
-    cors({
-      origin: process.env.CORS_ORIGIN || "*",
-    })
-  );
+const allowedOrigins = [
+  "https://sportsmart.com",
+  "https://sportsmart.ai",
+  "https://www.sportsmart.com",
+  "https://www.sportsmart.ai",
+  "https://seller.sportsmart.com",
+  "http://localhost:3000", // optional for local
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // Postman, curl
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // important
+  })
+);
+
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
