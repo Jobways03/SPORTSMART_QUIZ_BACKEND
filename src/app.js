@@ -32,6 +32,7 @@ const allowedOrigins = [
   "https://seller.sportsmart.com",
   "http://localhost:3000", // optional for local
   "http://localhost:5173",
+  "https://sportsmart-quiz-frontend.vercel.app"
 ];
 
 app.use(
@@ -81,7 +82,6 @@ app.use(
   app.use("/api/admin", adminPublishRoutes);
   app.use("/api/admin", adminResponsesRoutes);
   app.use("/api/admin", adminAnalyticsRoutes);
-
 
   app.use((req, res) => {
     res.status(404).json({ message: "Route not found" });
