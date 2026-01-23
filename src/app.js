@@ -35,22 +35,20 @@ const allowedOrigins = [
   "https://sportsmart-quiz-frontend.vercel.app"
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // Postman, curl
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: "*",
-    credentials: true, // important
-  })
-);
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
 
 
   app.use(express.json());
