@@ -33,6 +33,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://sportsmart-quiz-frontend.onrender.com",
   "https://sportspredictions.netlify.app",
+  "https://quiz.sportsmart.com",
 ];
 
 const corsOptions = {
