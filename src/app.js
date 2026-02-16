@@ -31,7 +31,8 @@ const allowedOrigins = [
   "https://seller.sportsmart.com",
   "http://localhost:3000", // optional for local
   "http://localhost:5173",
-  "https://sportsmart-quiz-frontend.vercel.app"
+  "https://sportsmart-quiz-frontend.onrender.com",
+  "https://sportspredictions.netlify.app",
 ];
 
 const corsOptions = {
