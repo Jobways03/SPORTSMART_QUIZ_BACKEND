@@ -16,7 +16,6 @@ import leaderboardRoutes from "./routes/leaderboard.routes.js";
 import adminResponsesRoutes from "./routes/adminResponses.routes.js";
 import adminAnalyticsRoutes from "./routes/adminAnalytics.routes.js";
 import adminAuthRoutes from "./routes/adminAuth.routes.js";
-import { adminAuthMiddleware } from "./middlewares/adminAuth.middleware.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import publicMatchesRoutes from "./routes/publicMatches.routes.js";
 import newadminAnalyticsRoutes from "./routes/admin.analytics.routes.js"
@@ -42,7 +41,7 @@ const corsOptions = {
     return callback(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-user-id", "x-user-email"],
   credentials: true,
 };
 
