@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import passport from "passport";
+import { initPassport } from "./config/passport.js";
 import healthRoutes from "./routes/health.routes.js";
 import userAuthRoutes from "./routes/auth.user.routes.js";
 import matchRoutes from "./routes/match.routes.js";
@@ -19,6 +21,7 @@ import adminAuthRoutes from "./routes/adminAuth.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import publicMatchesRoutes from "./routes/publicMatches.routes.js";
 import newadminAnalyticsRoutes from "./routes/admin.analytics.routes.js"
+import adminLeaderboardRoutes from "./routes/adminLeaderboard.routes.js"
 
 export function createApp() {
   const app = express();
@@ -55,6 +58,10 @@ app.options("*", cors(corsOptions));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  // Initialize Passport for Google OAuth
+  initPassport();
+  app.use(passport.initialize());
+
   app.get("/", (req, res) => {
     res.send("Cricket Match Quiz API running");
   });
@@ -81,6 +88,7 @@ app.options("*", cors(corsOptions));
   app.use("/api/admin", adminPublishRoutes);
   app.use("/api/admin", adminResponsesRoutes);
   app.use("/api/admin", adminAnalyticsRoutes);
+  app.use("/api/admin/leaderboard", adminLeaderboardRoutes);
 
   app.use((req, res) => {
     res.status(404).json({ message: "Route not found" });
