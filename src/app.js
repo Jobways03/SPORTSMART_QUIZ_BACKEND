@@ -20,40 +20,45 @@ import adminAnalyticsRoutes from "./routes/adminAnalytics.routes.js";
 import adminAuthRoutes from "./routes/adminAuth.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import publicMatchesRoutes from "./routes/publicMatches.routes.js";
-import newadminAnalyticsRoutes from "./routes/admin.analytics.routes.js"
-import adminLeaderboardRoutes from "./routes/adminLeaderboard.routes.js"
+import newadminAnalyticsRoutes from "./routes/admin.analytics.routes.js";
+import adminLeaderboardRoutes from "./routes/adminLeaderboard.routes.js";
 
 export function createApp() {
   const app = express();
 
-const allowedOrigins = [
-  "https://sportsmart.com",
-  "https://sportsmart.ai",
-  "https://www.sportsmart.com",
-  "https://www.sportsmart.ai",
-  "https://seller.sportsmart.com",
-  "http://localhost:3000", // optional for local
-  "http://localhost:5173",
-  "https://sportsmart-quiz-frontend.onrender.com",
-  "https://sportspredictions.netlify.app",
-  "https://quiz.sportsmart.com",
-];
+  app.set("trust proxy", 1);
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error("Not allowed by CORS"));
-  },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "x-user-id", "x-user-email"],
-  credentials: true,
-};
+  const allowedOrigins = [
+    "https://sportsmart.com",
+    "https://sportsmart.ai",
+    "https://www.sportsmart.com",
+    "https://www.sportsmart.ai",
+    "https://seller.sportsmart.com",
+    "http://localhost:3000", // optional for local
+    "http://localhost:5173",
+    "https://sportsmart-quiz-frontend.onrender.com",
+    "https://sportspredictions.netlify.app",
+    "https://quiz.sportsmart.com",
+  ];
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+  const corsOptions = {
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "x-user-id",
+      "x-user-email",
+    ],
+    credentials: true,
+  };
 
-
+  app.use(cors(corsOptions));
+  app.options("*", cors(corsOptions));
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
