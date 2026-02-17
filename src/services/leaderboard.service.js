@@ -1,6 +1,5 @@
 import { Quiz } from "../models/Quiz.js";
 import { Response } from "../models/Response.js";
-import { User } from "../models/User.js";
 
 export async function getQuizLeaderboard({ quizId, limit = 10 }) {
   const quiz = await Quiz.findById(quizId);
