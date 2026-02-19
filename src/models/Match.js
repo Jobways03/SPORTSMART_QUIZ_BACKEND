@@ -30,6 +30,12 @@ const matchSchema = new mongoose.Schema(
       default: "UPCOMING",
       index: true,
     },
+
+    winner: {
+      name:     { type: String, trim: true, default: null },
+      photo:    { type: String, trim: true, default: null },
+      location: { type: String, trim: true, default: null },
+    },
   },
   { timestamps: true }
 );

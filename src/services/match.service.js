@@ -27,7 +27,8 @@ export async function getMatchesForUser(userId) {
       tournament: 1,
       startTime: 1,
       status: 1,
-      coverImage: 1, // ✅ IMPORTANT
+      coverImage: 1,
+      winner: 1,
     })
     .sort({ startTime: -1 });
     
@@ -86,4 +87,12 @@ export async function updateMatch(matchId, updateData) {
 
 export async function deleteMatch(matchId) {
   return Match.findByIdAndDelete(matchId);
+}
+
+export async function setMatchWinner(matchId, winnerData) {
+  return Match.findByIdAndUpdate(
+    matchId,
+    { winner: winnerData },
+    { new: true }
+  );
 }

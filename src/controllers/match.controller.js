@@ -5,6 +5,7 @@ import {
   deleteMatch,
   getMatchesForUser,
   getAllMatches,
+  setMatchWinner,
 } from "../services/match.service.js";
 
 import { uploadToCloudinary } from "../middlewares/upload.js";
@@ -102,6 +103,34 @@ export async function deleteMatchController(req, res, next) {
       return res.status(404).json({ message: "Match not found" });
     }
     res.json({ message: "Match deleted" });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function setWinnerController(req, res, next) {
+  try {
+    const { matchId } = req.params;
+    const { winnerName, winnerLocation } = req.body;
+
+    const match = await getMatchById(matchId);
+    if (!match) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    let winnerPhoto = null;
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file.buffer, "winners");
+      winnerPhoto = uploadResult.secure_url;
+    }
+
+    const updated = await setMatchWinner(matchId, {
+      name: winnerName || null,
+      photo: winnerPhoto || match.winner?.photo || null,
+      location: winnerLocation || null,
+    });
+
+    res.json(updated);
   } catch (err) {
     next(err);
   }

@@ -6,6 +6,7 @@ import {
   updateMatchController,
   deleteMatchController,
   listadminMatchesController,
+  setWinnerController,
 } from "../controllers/match.controller.js";
 import { upload } from "../middlewares/upload.js";
 
@@ -19,6 +20,7 @@ router.get("/", listMatchesController);
 router.get("/admin", listadminMatchesController);
 router.get("/:matchId", getMatchController);
 router.patch("/:matchId", updateMatchController);
+router.patch("/:matchId/winner", upload.single("winnerPhoto"), setWinnerController);
 router.delete("/:matchId", deleteMatchController);
 
 export default router;

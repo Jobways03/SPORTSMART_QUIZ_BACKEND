@@ -1,11 +1,11 @@
 import { Quiz } from "../models/Quiz.js";
 import { Response } from "../models/Response.js";
 
-export async function getQuizLeaderboard({ quizId, limit = 10 }) {
+export async function getQuizLeaderboard({ quizId, limit = 10, skipPublishedCheck = false }) {
   const quiz = await Quiz.findById(quizId);
   if (!quiz) throw new Error("QUIZ_NOT_FOUND");
 
-  if (!quiz.isResultPublished) {
+  if (!skipPublishedCheck && !quiz.isResultPublished) {
     throw new Error("RESULTS_NOT_PUBLISHED");
   }
 
