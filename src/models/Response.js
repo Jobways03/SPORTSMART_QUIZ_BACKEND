@@ -46,6 +46,10 @@ const responseSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isOverride: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

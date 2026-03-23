@@ -28,6 +28,7 @@ export async function getActiveQuizByMatch(matchId) {
       title: match.title,
       startTime: match.startTime,
       status: match.status,
+      coverImage: match.coverImage || null,
     },
     questions,
   };
