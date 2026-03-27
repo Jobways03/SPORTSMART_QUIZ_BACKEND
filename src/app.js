@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import compression from "compression";
+import rateLimit from "express-rate-limit";
 import passport from "passport";
 import { initPassport } from "./config/passport.js";
 import healthRoutes from "./routes/health.routes.js";
@@ -60,6 +62,17 @@ export function createApp() {
 
   app.use(cors(corsOptions));
   app.options("*", cors(corsOptions));
+
+  app.use(compression());
+
+  const limiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many requests, please slow down." },
+  });
+  app.use("/api/", limiter);
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));

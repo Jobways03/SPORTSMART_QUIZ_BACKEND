@@ -9,11 +9,14 @@ export async function getActiveQuizByMatch(matchId) {
   const quiz = await Quiz.findOne({ matchId });
   if (!quiz) return null;
 
-  // AUTO-LOCK LOGIC
+  // AUTO-LOCK LOGIC — atomic update to avoid race condition
   const now = new Date();
   if (!quiz.isLocked && now >= match.startTime) {
+    await Quiz.updateOne(
+      { _id: quiz._id, isLocked: false },
+      { $set: { isLocked: true } }
+    );
     quiz.isLocked = true;
-    await quiz.save();
   }
 
   const questions = await Question.find({ quizId: quiz._id })

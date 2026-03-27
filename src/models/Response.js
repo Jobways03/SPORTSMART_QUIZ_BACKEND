@@ -59,4 +59,7 @@ const responseSchema = new mongoose.Schema(
  */
 responseSchema.index({ quizId: 1, userId: 1 }, { unique: true });
 
+// Leaderboard sort index
+responseSchema.index({ quizId: 1, score: -1, submittedAt: 1 });
+
 export const Response = mongoose.model("Response", responseSchema);

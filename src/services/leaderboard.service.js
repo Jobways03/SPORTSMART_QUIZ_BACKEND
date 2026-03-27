@@ -1,8 +1,9 @@
 import { Quiz } from "../models/Quiz.js";
 import { Response } from "../models/Response.js";
 import { WinnerOverride } from "../models/WinnerOverride.js";
+import { User } from "../models/User.js"; // ensure model is registered for populate
 
-export async function getQuizLeaderboard({ quizId, limit = 10, skipPublishedCheck = false }) {
+export async function getQuizLeaderboard({ quizId, limit = 10, skipPublishedCheck = false, includePhone = false }) {
   const quiz = await Quiz.findById(quizId);
   if (!quiz) throw new Error("QUIZ_NOT_FOUND");
 
@@ -10,19 +11,21 @@ export async function getQuizLeaderboard({ quizId, limit = 10, skipPublishedChec
     throw new Error("RESULTS_NOT_PUBLISHED");
   }
 
-  const override = await WinnerOverride.findOne({ quizId }).populate("userId", "name");
+  const userFields = includePhone ? "name phone" : "name";
+  const override = await WinnerOverride.findOne({ quizId }).populate("userId", userFields);
 
   if (override) {
     const overrideEntry = {
       rank: 1,
       name: override.userId.name,
-            score: override.score,
+      ...(includePhone && { phone: override.userId.phone || null }),
+      score: override.score,
     };
 
     const realLimit = limit > 0 ? limit - 1 : 0;
     const otherQuery = Response.find({ quizId, isOverride: { $ne: true } })
       .sort({ score: -1, submittedAt: 1 })
-      .populate("userId", "name");
+      .populate("userId", userFields);
 
     if (realLimit > 0) otherQuery.limit(realLimit);
 
@@ -30,8 +33,9 @@ export async function getQuizLeaderboard({ quizId, limit = 10, skipPublishedChec
 
     const otherEntries = others.map((r, index) => ({
       rank: index + 2,
-      name: r.userId.name,
-            score: r.score,
+      name: r.userId?.name || "Unknown User",
+      ...(includePhone && { phone: r.userId?.phone || null }),
+      score: r.score ?? 0,
     }));
 
     return [overrideEntry, ...otherEntries];
@@ -40,12 +44,13 @@ export async function getQuizLeaderboard({ quizId, limit = 10, skipPublishedChec
   const responses = await Response.find({ quizId })
     .sort({ score: -1, submittedAt: 1 })
     .limit(limit)
-    .populate("userId", "name");
+    .populate("userId", userFields);
 
   return responses.map((r, index) => ({
     rank: index + 1,
-    name: r.userId.name,
-        score: r.score,
+    name: r.userId?.name || "Unknown User",
+    ...(includePhone && { phone: r.userId?.phone || null }),
+    score: r.score ?? 0,
   }));
 }
 
@@ -104,9 +109,9 @@ export async function getLeaderboardWithUserRank({ quizId, userId }) {
 
     const otherEntries = otherResponses.map((r, index) => ({
       rank: index + 2,
-      userId: r.userId._id,
-      name: r.userId.name,
-            score: r.score,
+      userId: r.userId?._id,
+      name: r.userId?.name || "Unknown User",
+      score: r.score ?? 0,
     }));
 
     leaderboard = [overrideEntry, ...otherEntries];
@@ -118,9 +123,9 @@ export async function getLeaderboardWithUserRank({ quizId, userId }) {
 
     leaderboard = top10Responses.map((r, index) => ({
       rank: index + 1,
-      userId: r.userId._id,
-      name: r.userId.name,
-            score: r.score,
+      userId: r.userId?._id,
+      name: r.userId?.name || "Unknown User",
+      score: r.score ?? 0,
     }));
   }
 
@@ -132,7 +137,7 @@ export async function getLeaderboardWithUserRank({ quizId, userId }) {
       "name phone email"
     );
 
-    if (userResponse) {
+    if (userResponse && userResponse.userId) {
       let rank;
 
       if (override && override.userId._id.toString() === userId.toString()) {
@@ -153,7 +158,7 @@ export async function getLeaderboardWithUserRank({ quizId, userId }) {
         rank,
         userId: userResponse.userId._id,
         name: userResponse.userId.name,
-                score: userResponse.score,
+        score: userResponse.score,
       };
     }
   }

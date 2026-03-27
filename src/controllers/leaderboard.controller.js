@@ -46,7 +46,7 @@ export async function adminLeaderboardController(req, res, next) {
   try {
     const { quizId } = req.params;
 
-    const leaderboard = await getQuizLeaderboard({ quizId, limit: 0, skipPublishedCheck: true });
+    const leaderboard = await getQuizLeaderboard({ quizId, limit: 0, skipPublishedCheck: true, includePhone: true });
 
     res.json({ leaderboard, total: leaderboard.length });
   } catch (err) {

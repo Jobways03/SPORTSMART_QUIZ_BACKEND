@@ -5,7 +5,7 @@ export async function connectDB(uri) {
 
   mongoose.set("strictQuery", true);
 
-  await mongoose.connect(uri);
+  await mongoose.connect(uri, { maxPoolSize: 10 });
 
   mongoose.connection.on("connected", () => {
     console.log("✅ MongoDB connected");

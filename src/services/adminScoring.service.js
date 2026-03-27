@@ -27,26 +27,28 @@ export async function scoreQuizResponses(quizId) {
 
   const responses = await Response.find({ quizId });
 
-  let scoredCount = 0;
-
-  for (const response of responses) {
+  const bulkOps = responses.map((response) => {
     let totalScore = 0;
 
     for (const ans of response.answers) {
       const question = questionMap[ans.questionId.toString()];
       if (!question) continue;
-
       if (ans.selectedOptionIndex === question.correctOptionIndex) {
         totalScore += question.points;
       }
     }
 
-    response.score = totalScore;
-    response.isScored = true;
-    await response.save();
+    return {
+      updateOne: {
+        filter: { _id: response._id },
+        update: { $set: { score: totalScore, isScored: true } },
+      },
+    };
+  });
 
-    scoredCount++;
+  if (bulkOps.length > 0) {
+    await Response.bulkWrite(bulkOps, { ordered: false });
   }
 
-  return scoredCount;
+  return bulkOps.length;
 }
