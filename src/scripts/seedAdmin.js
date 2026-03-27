@@ -16,25 +16,24 @@ async function seedAdmin() {
     throw new Error("Seed admin email/password missing in env");
   }
 
+  const passwordHash = await bcrypt.hash(password, 10);
+
   const existing = await Admin.findOne({ email });
 
   if (existing) {
-    console.log("✅ Admin already exists:", email);
-    await mongoose.disconnect();
-    return;
+    existing.passwordHash = passwordHash;
+    await existing.save();
+    console.log("✅ Admin updated with new credentials");
+  } else {
+    await Admin.create({
+      email,
+      passwordHash,
+      role: "SUPER_ADMIN",
+    });
+    console.log("✅ Admin created");
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
-
-  await Admin.create({
-    email,
-    passwordHash,
-    role: "SUPER_ADMIN",
-  });
-
-  console.log("✅ Admin created");
   console.log("📧 Email:", email);
-  console.log("🔑 Password:", password);
 
   await mongoose.disconnect();
 }
