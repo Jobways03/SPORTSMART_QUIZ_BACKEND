@@ -19,7 +19,7 @@ router.post("/", upload.single("coverImage"), createMatchController);
 router.get("/", listMatchesController);
 router.get("/admin", listadminMatchesController);
 router.get("/:matchId", getMatchController);
-router.patch("/:matchId", updateMatchController);
+router.patch("/:matchId", upload.single("coverImage"), updateMatchController);
 router.patch("/:matchId/winner", upload.single("winnerPhoto"), setWinnerController);
 router.delete("/:matchId", deleteMatchController);
 

@@ -84,9 +84,15 @@ export async function getMatchController(req, res, next) {
 
 export async function updateMatchController(req, res, next) {
   try {
-    
-    const match = await updateMatch(req.params.matchId, req.body)
-    
+    const updateData = { ...req.body };
+
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file.buffer, "matches");
+      updateData.coverImage = uploadResult.secure_url;
+    }
+
+    const match = await updateMatch(req.params.matchId, updateData);
+
     if (!match) {
       return res.status(404).json({ message: "Match not found" });
     }
