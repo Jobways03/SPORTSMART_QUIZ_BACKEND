@@ -87,6 +87,15 @@ export async function updateMatchController(req, res, next) {
     const updateData = { ...req.body };
 
     if (req.file) {
+      const existing = await getMatchById(req.params.matchId);
+      if (!existing) {
+        return res.status(404).json({ message: "Match not found" });
+      }
+      if (existing.status === "COMPLETED" || existing.status === "CANCELLED") {
+        return res.status(400).json({
+          message: `Cover image cannot be updated once the match is ${existing.status}.`,
+        });
+      }
       const uploadResult = await uploadToCloudinary(req.file.buffer, "matches");
       updateData.coverImage = uploadResult.secure_url;
     }
