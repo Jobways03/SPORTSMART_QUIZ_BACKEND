@@ -8,20 +8,15 @@ export async function createMatch(data) {
 }
 
 export async function getMatchesForUser(userId) {
-  // 1️⃣ Get matchIds where user participated
-  const participatedMatches = await Response.distinct("matchId", {
+  // Get all matchIds where user has participated
+  const participatedMatchIds = await Response.distinct("matchId", {
     userId: new mongoose.Types.ObjectId(userId),
   });
 
-  let match = await Match.find({
-    $or: [
-      { status: { $in: ["UPCOMING", "LIVE"] } },
-      {
-        status: "COMPLETED",
-        _id: { $in: participatedMatches },
-      },
-    ],
-  })
+  const participatedSet = new Set(participatedMatchIds.map((id) => id.toString()));
+
+  // Get ALL matches regardless of status
+  const matches = await Match.find()
     .select({
       title: 1,
       tournament: 1,
@@ -31,10 +26,11 @@ export async function getMatchesForUser(userId) {
       winner: 1,
     })
     .sort({ startTime: -1 });
-    
 
-  // 2️⃣ Fetch matches (explicitly include coverImage)
-  return match
+  return matches.map((m) => ({
+    ...m.toObject(),
+    participated: participatedSet.has(m._id.toString()),
+  }));
 }
 
 

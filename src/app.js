@@ -19,6 +19,7 @@ import adminResponsesRoutes from "./routes/adminResponses.routes.js";
 import adminAnalyticsRoutes from "./routes/adminAnalytics.routes.js";
 import adminAuthRoutes from "./routes/adminAuth.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
+import { adminAuthMiddleware } from "./middlewares/adminAuth.middleware.js";
 import publicMatchesRoutes from "./routes/publicMatches.routes.js";
 import newadminAnalyticsRoutes from "./routes/admin.analytics.routes.js";
 import adminLeaderboardRoutes from "./routes/adminLeaderboard.routes.js";
@@ -90,7 +91,8 @@ export function createApp() {
 
   app.use("/api/admin/auth", adminAuthRoutes);
 
-  //   app.use("/api/admin", adminAuthMiddleware);
+  // Protect all /api/admin/* routes below this line (auth route above is public)
+  app.use("/api/admin", adminAuthMiddleware);
 
   app.use("/api/admin/matches", matchRoutes);
   app.use("/api/admin/quizzes", quizRoutes);

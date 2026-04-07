@@ -16,8 +16,8 @@ const router = Router();
  * ADMIN Match APIs
  */
 router.post("/", upload.single("coverImage"), createMatchController);
-router.get("/", listMatchesController);
 router.get("/admin", listadminMatchesController);
+router.get("/", listMatchesController);
 router.get("/:matchId", getMatchController);
 router.patch("/:matchId", upload.single("coverImage"), updateMatchController);
 router.patch("/:matchId/winner", upload.single("winnerPhoto"), setWinnerController);
