@@ -2,13 +2,14 @@ import { Quiz } from "../models/Quiz.js";
 import { User } from "../models/User.js";
 import { Response } from "../models/Response.js";
 import { WinnerOverride } from "../models/WinnerOverride.js";
+import { uploadToCloudinary } from "../middlewares/upload.js";
 
 /**
  * Create a system-generated winner override for a quiz.
  * Only allowed before results are published.
  * Only one override per quiz is permitted.
  */
-export async function createWinnerOverride({ quizId, displayName, phone, score, adminId }) {
+export async function createWinnerOverride({ quizId, displayName, phone, score, adminId, photoBuffer }) {
   if (!displayName || !displayName.trim()) {
     throw new Error("DISPLAY_NAME_REQUIRED");
   }
@@ -31,14 +32,33 @@ export async function createWinnerOverride({ quizId, displayName, phone, score, 
   const existing = await WinnerOverride.findOne({ quizId });
   if (existing) throw new Error("OVERRIDE_EXISTS");
 
+  // Upload photo to Cloudinary if provided
+  let photoUrl;
+  if (photoBuffer) {
+    const uploaded = await uploadToCloudinary(photoBuffer, "winner-overrides");
+    photoUrl = uploaded.secure_url;
+  }
+
   const userPayload = {
     name: displayName.trim(),
     isSystemGenerated: true,
   };
   if (phone) userPayload.phone = phone;
+  if (photoUrl) userPayload.photo = photoUrl;
 
   // Create a system-generated user — email/password omitted (sparse/optional)
-  const systemUser = await User.create(userPayload);
+  // If phone already exists in DB, create without phone to avoid duplicate key error
+  let systemUser;
+  try {
+    systemUser = await User.create(userPayload);
+  } catch (err) {
+    if (err.code === 11000 && userPayload.phone) {
+      delete userPayload.phone;
+      systemUser = await User.create(userPayload);
+    } else {
+      throw err;
+    }
+  }
 
   // Create a pre-scored response (answers array is empty — manually scored)
   const overrideResponse = await Response.create({
@@ -66,6 +86,7 @@ export async function createWinnerOverride({ quizId, displayName, phone, score, 
       userId: systemUser._id,
       displayName: systemUser.name,
       phone: systemUser.phone || null,
+      photo: systemUser.photo || null,
       score: override.score,
       createdBy: override.createdBy,
       createdAt: override.createdAt,
@@ -81,7 +102,7 @@ export async function createWinnerOverride({ quizId, displayName, phone, score, 
 export async function getWinnerOverride(quizId) {
   const override = await WinnerOverride.findOne({ quizId }).populate(
     "userId",
-    "name phone isSystemGenerated"
+    "name phone photo isSystemGenerated"
   );
 
   if (!override) return null;
@@ -92,6 +113,7 @@ export async function getWinnerOverride(quizId) {
     userId: override.userId._id,
     displayName: override.userId.name,
     phone: override.userId.phone || null,
+    photo: override.userId.photo || null,
     score: override.score,
     createdBy: override.createdBy,
     createdAt: override.createdAt,

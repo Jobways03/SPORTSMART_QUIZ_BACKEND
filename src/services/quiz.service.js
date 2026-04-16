@@ -4,6 +4,10 @@ export async function createQuiz(data) {
   return Quiz.create(data);
 }
 
+export async function getAllQuizzes() {
+  return Quiz.find().populate("matchId", "title").sort({ createdAt: -1 });
+}
+
 export async function getQuizzesByMatch(matchId) {
   return Quiz.find({ matchId }).sort({ createdAt: -1 });
 }

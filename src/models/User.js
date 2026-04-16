@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema(
     },
     resetToken: String,
     resetTokenExpiry: Date,
+    photo: {
+      type: String, // Cloudinary URL
+    },
     isSystemGenerated: {
       type: Boolean,
       default: false,

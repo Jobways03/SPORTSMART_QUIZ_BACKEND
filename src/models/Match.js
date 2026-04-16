@@ -35,6 +35,7 @@ const matchSchema = new mongoose.Schema(
       name:     { type: String, trim: true, default: null },
       photo:    { type: String, trim: true, default: null },
       location: { type: String, trim: true, default: null },
+      prize:    { type: String, trim: true, default: null },
     },
   },
   { timestamps: true }

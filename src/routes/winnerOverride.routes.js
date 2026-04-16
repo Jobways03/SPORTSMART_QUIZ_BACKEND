@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { adminAuthMiddleware } from "../middlewares/adminAuth.middleware.js";
+import { upload } from "../middlewares/upload.js";
 import {
   createOverrideController,
   getOverrideController,
@@ -16,7 +17,7 @@ router.use(adminAuthMiddleware);
  * GET    /api/admin/quizzes/:quizId/override  — get current override
  * DELETE /api/admin/quizzes/:quizId/override  — remove override
  */
-router.post("/:quizId/override", createOverrideController);
+router.post("/:quizId/override", upload.single("photo"), createOverrideController);
 router.get("/:quizId/override", getOverrideController);
 router.delete("/:quizId/override", deleteOverrideController);
 

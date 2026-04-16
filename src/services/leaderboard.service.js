@@ -11,13 +11,14 @@ export async function getQuizLeaderboard({ quizId, limit = 10, skipPublishedChec
     throw new Error("RESULTS_NOT_PUBLISHED");
   }
 
-  const userFields = includePhone ? "name phone" : "name";
+  const userFields = includePhone ? "name phone photo" : "name photo";
   const override = await WinnerOverride.findOne({ quizId }).populate("userId", userFields);
 
   if (override) {
     const overrideEntry = {
       rank: 1,
       name: override.userId.name,
+      photo: override.userId.photo || null,
       ...(includePhone && { phone: override.userId.phone || null }),
       score: override.score,
     };
@@ -90,7 +91,7 @@ export async function getLeaderboardWithUserRank({ quizId, userId }) {
     throw new Error("RESULTS_NOT_PUBLISHED");
   }
 
-  const override = await WinnerOverride.findOne({ quizId }).populate("userId", "name");
+  const override = await WinnerOverride.findOne({ quizId }).populate("userId", "name photo");
 
   let leaderboard = [];
 
@@ -99,18 +100,20 @@ export async function getLeaderboardWithUserRank({ quizId, userId }) {
       rank: 1,
       userId: override.userId._id,
       name: override.userId.name,
-            score: override.score,
+      photo: override.userId.photo || null,
+      score: override.score,
     };
 
     const otherResponses = await Response.find({ quizId, isOverride: { $ne: true } })
       .sort({ score: -1, submittedAt: 1 })
       .limit(9)
-      .populate("userId", "name");
+      .populate("userId", "name photo");
 
     const otherEntries = otherResponses.map((r, index) => ({
       rank: index + 2,
       userId: r.userId?._id,
       name: r.userId?.name || "Unknown User",
+      photo: r.userId?.photo || null,
       score: r.score ?? 0,
     }));
 
@@ -119,12 +122,13 @@ export async function getLeaderboardWithUserRank({ quizId, userId }) {
     const top10Responses = await Response.find({ quizId })
       .sort({ score: -1, submittedAt: 1 })
       .limit(10)
-      .populate("userId", "name");
+      .populate("userId", "name photo");
 
     leaderboard = top10Responses.map((r, index) => ({
       rank: index + 1,
       userId: r.userId?._id,
       name: r.userId?.name || "Unknown User",
+      photo: r.userId?.photo || null,
       score: r.score ?? 0,
     }));
   }

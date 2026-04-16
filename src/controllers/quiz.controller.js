@@ -1,10 +1,20 @@
 import { Match } from "../models/Match.js";
 import {
+  getAllQuizzes,
   createQuiz,
   getQuizzesByMatch,
   getQuizById,
   updateQuiz,
 } from "../services/quiz.service.js";
+
+export async function listAllQuizzesController(_req, res, next) {
+  try {
+    const quizzes = await getAllQuizzes();
+    res.json(quizzes);
+  } catch (err) {
+    next(err);
+  }
+}
 
 export async function createQuizController(req, res, next) {
   try {

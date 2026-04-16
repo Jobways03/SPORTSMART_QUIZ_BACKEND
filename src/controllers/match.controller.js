@@ -126,7 +126,7 @@ export async function deleteMatchController(req, res, next) {
 export async function setWinnerController(req, res, next) {
   try {
     const { matchId } = req.params;
-    const { winnerName, winnerLocation } = req.body;
+    const { winnerName, winnerLocation, winnerPrize } = req.body;
 
     const match = await getMatchById(matchId);
     if (!match) {
@@ -143,6 +143,7 @@ export async function setWinnerController(req, res, next) {
       name: winnerName || null,
       photo: winnerPhoto || match.winner?.photo || null,
       location: winnerLocation || null,
+      prize: winnerPrize || null,
     });
 
     res.json(updated);

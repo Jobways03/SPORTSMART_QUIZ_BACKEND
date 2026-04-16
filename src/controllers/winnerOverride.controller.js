@@ -9,8 +9,9 @@ export async function createOverrideController(req, res, next) {
     const { quizId } = req.params;
     const { displayName, phone, score } = req.body;
     const adminId = req.admin?.sub;
+    const photoBuffer = req.file?.buffer;
 
-    const result = await createWinnerOverride({ quizId, displayName, phone, score, adminId });
+    const result = await createWinnerOverride({ quizId, displayName, phone, score, adminId, photoBuffer });
 
     return res.status(201).json({
       message: "Winner override created successfully",

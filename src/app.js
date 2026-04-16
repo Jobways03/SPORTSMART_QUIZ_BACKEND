@@ -24,6 +24,7 @@ import publicMatchesRoutes from "./routes/publicMatches.routes.js";
 import newadminAnalyticsRoutes from "./routes/admin.analytics.routes.js";
 import adminLeaderboardRoutes from "./routes/adminLeaderboard.routes.js";
 import winnerOverrideRoutes from "./routes/winnerOverride.routes.js";
+import adminUsersRoutes from "./routes/adminUsers.routes.js";
 
 export function createApp() {
   const app = express();
@@ -105,6 +106,7 @@ export function createApp() {
   app.use("/api/admin", adminAnalyticsRoutes);
   app.use("/api/admin/leaderboard", adminLeaderboardRoutes);
   app.use("/api/admin/quizzes", winnerOverrideRoutes);
+  app.use("/api/admin/users", adminUsersRoutes);
 
   app.use((req, res) => {
     res.status(404).json({ message: "Route not found" });

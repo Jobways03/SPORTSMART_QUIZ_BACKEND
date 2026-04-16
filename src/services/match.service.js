@@ -15,20 +15,42 @@ export async function getMatchesForUser(userId) {
 
   const participatedSet = new Set(participatedMatchIds.map((id) => id.toString()));
 
-  // Get ALL matches regardless of status
-  const matches = await Match.find()
-    .select({
-      title: 1,
-      tournament: 1,
-      startTime: 1,
-      status: 1,
-      coverImage: 1,
-      winner: 1,
-    })
-    .sort({ startTime: -1 });
+  const matches = await Match.aggregate([
+    {
+      $lookup: {
+        from: "quizzes",
+        localField: "_id",
+        foreignField: "matchId",
+        as: "quiz",
+      },
+    },
+    {
+      $unwind: {
+        path: "$quiz",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        isResultPublished: { $ifNull: ["$quiz.isResultPublished", false] },
+      },
+    },
+    {
+      $project: {
+        title: 1,
+        tournament: 1,
+        startTime: 1,
+        status: 1,
+        coverImage: 1,
+        winner: 1,
+        isResultPublished: 1,
+      },
+    },
+    { $sort: { startTime: -1 } },
+  ]);
 
   return matches.map((m) => ({
-    ...m.toObject(),
+    ...m,
     participated: participatedSet.has(m._id.toString()),
   }));
 }
@@ -38,32 +60,52 @@ export async function getAllMatches(filters = {}) {
   return Match.aggregate([
     { $match: filters },
 
+    // Join quiz
     {
       $lookup: {
-        from: "quizzes", // Mongo collection name
+        from: "quizzes",
         localField: "_id",
         foreignField: "matchId",
         as: "quiz",
       },
     },
+    { $unwind: { path: "$quiz", preserveNullAndEmptyArrays: true } },
 
+    // Join winner override via quiz._id
     {
-      $unwind: {
-        path: "$quiz",
-        preserveNullAndEmptyArrays: true, // matches without quiz
+      $lookup: {
+        from: "winneroverrides",
+        localField: "quiz._id",
+        foreignField: "quizId",
+        as: "winnerOverride",
       },
     },
+    { $unwind: { path: "$winnerOverride", preserveNullAndEmptyArrays: true } },
+
+    // Join override user (name only)
+    {
+      $lookup: {
+        from: "users",
+        localField: "winnerOverride.userId",
+        foreignField: "_id",
+        as: "overrideUser",
+      },
+    },
+    { $unwind: { path: "$overrideUser", preserveNullAndEmptyArrays: true } },
 
     {
       $addFields: {
         quizId: "$quiz._id",
         isResultPublished: "$quiz.isResultPublished",
+        overrideWinnerName: "$overrideUser.name",
       },
     },
 
     {
       $project: {
-        quiz: 0, // remove full quiz object
+        quiz: 0,
+        winnerOverride: 0,
+        overrideUser: 0,
       },
     },
 

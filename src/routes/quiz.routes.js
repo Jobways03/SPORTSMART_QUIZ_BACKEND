@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  listAllQuizzesController,
   createQuizController,
   listQuizzesByMatchController,
   getQuizController,
@@ -11,6 +12,7 @@ const router = Router();
 /**
  * ADMIN Quiz APIs
  */
+router.get("/", listAllQuizzesController);
 router.post("/", createQuizController);
 router.get("/match/:matchId", listQuizzesByMatchController);
 router.get("/:quizId", getQuizController);
