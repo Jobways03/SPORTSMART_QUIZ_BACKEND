@@ -31,13 +31,21 @@ export const upload = multer({
 /* Upload buffer → Cloudinary */
 export const uploadToCloudinary = (buffer, folder = "matches") =>
   new Promise((resolve, reject) => {
+    const gravity = folder === "winners" ? "auto:subject" : "auto";
+
     cloudinary.v2.uploader
       .upload_stream(
         {
           folder,
           resource_type: "image",
           transformation: [
-            { width: 1200, height: 630, crop: "fill", quality: "auto" },
+            {
+              width: 1200,
+              height: 630,
+              crop: "fill",
+              gravity,
+              quality: "auto",
+            },
           ],
         },
         (error, result) => {
